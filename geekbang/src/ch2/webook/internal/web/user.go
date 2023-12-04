@@ -3,7 +3,6 @@ package web
 import (
 	"ch2/webook/internal/domain"
 	"ch2/webook/internal/service"
-	"encoding/json"
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -136,6 +135,7 @@ func (h *UserHandler) Profile(ctx *gin.Context) {
 		Email string `json:"email"`
 	}
 	var req Req
+	// Bind ok but req.Email=""
 	if err := ctx.Bind(&req); err != nil {
 		ctx.String(http.StatusOK, "System Error")
 		return
@@ -149,9 +149,16 @@ func (h *UserHandler) Profile(ctx *gin.Context) {
 	if err != nil {
 		return
 	}
-	us, err := json.Marshal(u)
-	if err != nil {
-		return
+	type User struct {
+		Nickname string `json:"nickname"`
+		Email    string `json:"email"`
+		AboutMe  string `json:"aboutMe"`
+		Birthday string `json:"birthday"`
 	}
-	ctx.String(http.StatusOK, string(us))
+	ctx.JSON(http.StatusOK, User{
+		Nickname: u.NickName,
+		Email:    u.Email,
+		AboutMe:  u.Introduction,
+		Birthday: u.Birthday,
+	})
 }
